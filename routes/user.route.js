@@ -12,4 +12,4 @@ router.post('/register', createUser);
 router.get('/verify-email/:token', verifyUser);
 router.post('/login', loginUser);
 
-module.export = router;
+module.exports = router;
