@@ -1,4 +1,7 @@
 const Wallet = require('../models/wallet.model');
+const User = require('../models/user.model');
+const Transaction = require('../models/transaction.model.js');
+
 
 const fundWallet = async (req, res) => {
   try {
@@ -17,6 +20,13 @@ const fundWallet = async (req, res) => {
 
     wallet.balance += fundAmount;
     const updatedWallet = await wallet.save();
+
+    await Transaction.create({
+      userId: userId,
+      type: 'fund',
+      amount: fundAmount,
+      timestamp: new Date(),
+    });
 
     res.status(200).json({
       message: 'Wallet funded successfully.',
@@ -57,6 +67,22 @@ const transferFunds = async (req, res) => {
 
     await senderWallet.save();
     await receiverWallet.save();
+
+    await Transaction.create({
+      userId: senderId,
+      type: 'transfer_out',
+      amount: transferAmount,
+      to: receiverId, // adding receiver information
+      timestamp: new Date(),
+    });
+
+    await Transaction.create({
+      userId: receiverId,
+      type: 'transfer_in',
+      amount: transferAmount,
+      from: senderId, // adding sender information
+      timestamp: new Date(),
+    });
 
     res.status(200).json({
       message: 'Transfer successful',
